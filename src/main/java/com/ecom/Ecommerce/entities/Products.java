@@ -17,7 +17,6 @@ public class Products {
     private String about;
     private String imageName;
     private int numOfProducts;
-
     @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "merchantId")
     private Merchant merchant;
@@ -29,5 +28,9 @@ public class Products {
             inverseJoinColumns = @JoinColumn(name = "customerId")
     )
     private List<Customer> customers = new ArrayList<>();
+
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
 
 }

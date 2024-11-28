@@ -3,26 +3,28 @@ import com.ecom.Ecommerce.payloads.ProductsDto;
 import com.ecom.Ecommerce.services.ProductService;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class ProductServiceImpl implements ProductService {
 
     @Override
-    public ProductsDto addProducts() {
+    public ProductsDto addProducts(ProductsDto productsDto) {
         return null;
     }
 
     @Override
-    public ProductsDto updateProduct() {
+    public ProductsDto updateProduct(ProductsDto productsDto, int prodId) {
         return null;
     }
 
     @Override
-    public ProductsDto getAllProducts() {
+    public List<ProductsDto> getAllProducts() {
         return null;
     }
 
     @Override
-    public ProductsDto deleteProducts() {
+    public ProductsDto deleteProducts(int productId) {
         return null;
     }
 }
