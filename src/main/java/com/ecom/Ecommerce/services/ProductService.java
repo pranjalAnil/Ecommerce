@@ -8,5 +8,6 @@ public interface ProductService {
     public ProductsDto updateProduct(ProductsDto productsDto,int prodId);
     public List<ProductsDto> getAllProducts();
     public String deleteProducts(int prodId);
+    public ProductsDto orderProduct(int prodId);
 
 }

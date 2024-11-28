@@ -1,6 +1,7 @@
 package com.ecom.Ecommerce.cotrollers;
 
 import com.ecom.Ecommerce.payloads.CustomerDto;
+import com.ecom.Ecommerce.payloads.ProductsDto;
 import com.ecom.Ecommerce.services.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,5 +32,8 @@ public class CustomerController {
         return new ResponseEntity<>(customerService.deleteAccount(email),HttpStatus.OK);
     }
 
+   /* @PostMapping("/order")
+    public ResponseEntity<?> orderProduct(@PathVariable int prodId) {
 
+    }*/
 }
