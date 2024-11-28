@@ -24,7 +24,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductsDto deleteProducts(int productId) {
+    public ProductsDto deleteProducts(int prodId) {
         return null;
     }
 }
