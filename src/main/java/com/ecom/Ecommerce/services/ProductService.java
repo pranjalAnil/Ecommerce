@@ -7,6 +7,6 @@ public interface ProductService {
     public ProductsDto addProducts(ProductsDto productsDto);
     public ProductsDto updateProduct(ProductsDto productsDto,int prodId);
     public List<ProductsDto> getAllProducts();
-    public ProductsDto deleteProducts(int prodId);
+    public String deleteProducts(int prodId);
 
 }
