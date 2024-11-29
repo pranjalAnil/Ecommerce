@@ -25,6 +25,4 @@ public class Customer {
     private List<Products> productsList = new ArrayList<>();
 
 
-
-
 }

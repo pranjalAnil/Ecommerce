@@ -19,6 +19,7 @@ public class MerchantServiceImpl implements MerchantService {
         Merchant merchant=new Merchant();
         BeanUtils.copyProperties(merchantDto,merchant);
         merchantRepo.save(merchant);
+//        merchantDto.setId(merchant.getMerchantId());
         BeanUtils.copyProperties(merchant,merchantDto);
         return merchantDto;
     }
