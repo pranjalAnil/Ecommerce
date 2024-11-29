@@ -14,6 +14,7 @@ public class Products {
     @Column(name = "prod_id")
     private int prodId;
     private String prodName;
+    private int price;
     private String about;
     private String imageName;
     private int numOfProducts;
@@ -34,5 +35,16 @@ public class Products {
     @JoinColumn(name = "category_id")
     private Category category;
 
+
+
+
+    @ManyToOne
+    @JoinColumn(name = "shipment_id")
+    private Shipment shipment;
+
+  /*  @ManyToOne
+    @JoinColumn(name = "order_id")
+    private Order order;
+*/
 
 }
