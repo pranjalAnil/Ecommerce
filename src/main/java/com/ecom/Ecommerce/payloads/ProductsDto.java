@@ -1,5 +1,6 @@
 package com.ecom.Ecommerce.payloads;
 
+
 import com.ecom.Ecommerce.entities.Category;
 import com.ecom.Ecommerce.entities.Merchant;
 import lombok.Data;
@@ -13,4 +14,5 @@ public class ProductsDto {
     private String imageName;
     private Merchant merchant;
     private Category category;
+
 }

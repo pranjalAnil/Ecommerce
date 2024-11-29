@@ -1,6 +1,4 @@
 package com.ecom.Ecommerce.entities;
-
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 

@@ -1,6 +1,8 @@
 package com.ecom.Ecommerce.services.Impl;
+import com.ecom.Ecommerce.entities.Merchant;
 import com.ecom.Ecommerce.entities.Products;
 import com.ecom.Ecommerce.payloads.ProductsDto;
+import com.ecom.Ecommerce.repo.MerchantRepo;
 import com.ecom.Ecommerce.repo.ProductRepo;
 import com.ecom.Ecommerce.services.ProductService;
 import org.springframework.beans.BeanUtils;
@@ -17,11 +19,17 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     ProductRepo productRepo;
 
+    @Autowired
+    MerchantRepo merchantRepo;
+
     @Override
-    public ProductsDto addProducts(ProductsDto productsDto) {
+    public ProductsDto addProducts(ProductsDto productsDto, int merchantID) {
         Products products = new Products();
+        Merchant merchant= merchantRepo.findById(merchantID).orElseThrow();
+        products.setMerchant(merchant);
         BeanUtils.copyProperties(productsDto, products);
         productRepo.save(products);
+        BeanUtils.copyProperties(products,productsDto);
         return productsDto;
     }
 

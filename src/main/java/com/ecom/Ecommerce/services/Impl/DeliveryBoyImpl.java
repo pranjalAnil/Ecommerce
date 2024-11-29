@@ -1,5 +1,4 @@
 package com.ecom.Ecommerce.services.Impl;
-
 import com.ecom.Ecommerce.entities.DeliveryBoy;
 import com.ecom.Ecommerce.payloads.DeliveryBoyDto;
 import com.ecom.Ecommerce.repo.DeliveryBoyRepo;
@@ -7,7 +6,6 @@ import com.ecom.Ecommerce.services.DeliveryBoyService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
 

@@ -1,5 +1,6 @@
 package com.ecom.Ecommerce.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.util.ArrayList;
@@ -19,6 +20,7 @@ public class Products {
     private int numOfProducts;
     @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "merchantId")
+    @JsonBackReference
     private Merchant merchant;
 
     @ManyToMany(cascade = CascadeType.PERSIST)
@@ -33,6 +35,9 @@ public class Products {
     @JoinColumn(name = "category_id")
     private Category category;
 
+
+
+
     @ManyToOne
     @JoinColumn(name = "shipment_id")
     private Shipment shipment;
@@ -41,4 +46,5 @@ public class Products {
     @JoinColumn(name = "order_id")
     private Order order;
 */
+
 }
