@@ -11,7 +11,6 @@ import java.util.List;
 public class Merchant {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-
     private int merchantId;
 
     @Column(unique = true)
