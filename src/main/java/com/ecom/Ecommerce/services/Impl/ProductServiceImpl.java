@@ -68,7 +68,6 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductsDto orderProduct(int prodId) {
        Products products = productRepo.findById(prodId).orElseThrow();
-      // products.setOrderId
         return null;
     }
 }

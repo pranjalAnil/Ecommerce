@@ -2,14 +2,13 @@ package com.ecom.Ecommerce.services.Impl;
 import com.ecom.Ecommerce.constants.Constant;
 import com.ecom.Ecommerce.entities.OrderedProd;
 import com.ecom.Ecommerce.entities.Products;
-import com.ecom.Ecommerce.payloads.CustomerDto;
+import com.ecom.Ecommerce.entities.Shipment;
+import com.ecom.Ecommerce.payloads.*;
 import com.ecom.Ecommerce.entities.Customer;
-import com.ecom.Ecommerce.payloads.OrderDto;
-import com.ecom.Ecommerce.payloads.OrderPlaced;
-import com.ecom.Ecommerce.payloads.PreviousOrders;
 import com.ecom.Ecommerce.repo.CustomerRepo;
 import com.ecom.Ecommerce.repo.OrderedProdRepo;
 import com.ecom.Ecommerce.repo.ProductRepo;
+import com.ecom.Ecommerce.repo.ShipmentRepo;
 import com.ecom.Ecommerce.services.CustomerService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +29,9 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Autowired
     ProductRepo productRepo;
+
+    @Autowired
+    ShipmentRepo shipmentRepo;
 
     @Override
     public CustomerDto createAcc(CustomerDto customerDto) {
@@ -67,18 +69,33 @@ public class CustomerServiceImpl implements CustomerService {
         Customer customer=customerRepo.findById(customerId).orElseThrow();
         Products products=productRepo.findById(prodID).orElseThrow();
         if(products.getNumOfProducts()!=0) {
-            BeanUtils.copyProperties(orderedDto, orderedProd);
-            orderedProd.setProductId(products.getProdId());
-            orderedProd.setCustomerId(customerId);
-            orderedProd.setStatus(Constant.order);
-            orderedProdRepo.save(orderedProd);
-            products.setNumOfProducts(products.getNumOfProducts() - 1);
-            productRepo.save(products);
-            OrderPlaced orderPlaced = new OrderPlaced();
-            orderPlaced.setProducts(products);
-            orderPlaced.setOrderId(orderedProd.getOrderId());
-            orderPlaced.setStr("Order Placed");
-            return orderPlaced;
+            if(orderedDto.getQuantity()<=products.getNumOfProducts()) {
+                BeanUtils.copyProperties(orderedDto, orderedProd);
+                orderedProd.setProductId(products.getProdId());
+                orderedProd.setCustomerId(customerId);
+                orderedProd.setStatus(Constant.order);
+                orderedProdRepo.save(orderedProd);
+                products.setNumOfProducts(products.getNumOfProducts() - orderedDto.getQuantity());
+                productRepo.save(products);
+
+                Shipment shipment=new Shipment();
+                shipment.setOrderId(orderedProd.getOrderId());
+                shipment.setProdId(prodID);
+                shipment.setStatus(Constant.order);
+                shipment.setCustomerId(customerId);
+                shipmentRepo.save(shipment);
+
+                OrderPlaced orderPlaced = new OrderPlaced();
+                orderPlaced.setProducts(products);
+                orderPlaced.setOrderId(orderedProd.getOrderId());
+                orderPlaced.setStr("Order Placed");
+
+                return orderPlaced;
+            }
+            else {
+                throw new RuntimeException();
+
+            }
         }
         else {
             throw new RuntimeException();
@@ -101,6 +118,10 @@ public class CustomerServiceImpl implements CustomerService {
 
 
     }
+
+
+
+
 
 
 }

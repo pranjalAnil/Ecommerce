@@ -1,19 +1,38 @@
 package com.ecom.Ecommerce.services.Impl;
+import com.ecom.Ecommerce.constants.Constant;
+import com.ecom.Ecommerce.entities.Customer;
 import com.ecom.Ecommerce.entities.DeliveryBoy;
+import com.ecom.Ecommerce.entities.OrderedProd;
+import com.ecom.Ecommerce.entities.Shipment;
+import com.ecom.Ecommerce.payloads.CustomerDtoShipment;
 import com.ecom.Ecommerce.payloads.DeliveryBoyDto;
+import com.ecom.Ecommerce.payloads.ShipmentDto;
+import com.ecom.Ecommerce.repo.CustomerRepo;
 import com.ecom.Ecommerce.repo.DeliveryBoyRepo;
+import com.ecom.Ecommerce.repo.OrderedProdRepo;
+import com.ecom.Ecommerce.repo.ShipmentRepo;
 import com.ecom.Ecommerce.services.DeliveryBoyService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class DeliveryBoyImpl implements DeliveryBoyService {
 
     @Autowired
     DeliveryBoyRepo deliveryBoyRepo;
+
+    @Autowired
+    ShipmentRepo shipmentRepo;
+
+    @Autowired
+    OrderedProdRepo orderedProdRepo;
+
+    @Autowired
+    CustomerRepo customerRepo;
 
     @Override
     public DeliveryBoyDto addDeliverBoy(DeliveryBoyDto deliveryBoyDto) {
@@ -61,4 +80,48 @@ public class DeliveryBoyImpl implements DeliveryBoyService {
         BeanUtils.copyProperties(deliveryBoy,deliveryBoyDto);
         return deliveryBoyDto;
     }
+
+
+
+    @Override
+    public List<ShipmentDto> getAllShipments(int deliveryBoyId){
+        List<Shipment> shipment= shipmentRepo.findAll();
+
+
+        return shipment.stream().map(
+                ship->{
+                    ShipmentDto shipmentDto=new ShipmentDto();
+                    Customer customer=customerRepo.findById(ship.getCustomerId()).orElseThrow();
+                    CustomerDtoShipment customerDtoShipment=new CustomerDtoShipment();
+                    BeanUtils.copyProperties(customer,customerDtoShipment);
+                    shipmentDto.setCustomerDtoShipment(customerDtoShipment);
+                    BeanUtils.copyProperties(ship,shipmentDto);
+                    return shipmentDto;
+                }
+        ).collect(Collectors.toList());
+    }
+
+    @Override
+    public String successfulDelivery(int shipmentId, int deliveryByoId) {
+        Shipment shipment=shipmentRepo.findById(shipmentId).orElseThrow();
+        shipment.setStatus(Constant.delivered);
+        shipmentRepo.save(shipment);
+        OrderedProd orderedProd= orderedProdRepo.findById(shipment.getOrderId()).orElseThrow();
+        orderedProd.setStatus(Constant.delivered);
+        orderedProdRepo.save(orderedProd);
+        return "Delivered Order";
+    }
+
+    @Override
+    public String orderCancelation(int shipmentId,int deliveryByoId) {
+        Shipment shipment=shipmentRepo.findById(shipmentId).orElseThrow();
+        shipment.setStatus(Constant.cancel);
+        shipmentRepo.save(shipment);
+        OrderedProd orderedProd= orderedProdRepo.findById(shipment.getOrderId()).orElseThrow();
+        orderedProd.setStatus(Constant.cancel);
+        orderedProdRepo.save(orderedProd);
+        return "Order Canceled";
+    }
+
+
 }

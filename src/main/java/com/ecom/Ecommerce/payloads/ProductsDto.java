@@ -12,7 +12,7 @@ public class ProductsDto {
     private String about;
     private int numOfProducts;
     private String imageName;
-    private Merchant merchant;
-    private Category category;
+//    private Merchant merchant;
+//    private Category category;
 
 }

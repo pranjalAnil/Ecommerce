@@ -9,14 +9,15 @@ import java.util.List;
 
 @Entity
 @Data
-@NoArgsConstructor
 public class Shipment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int shipId;
     private String status;
-
-    @OneToMany(mappedBy = "shipment", cascade = CascadeType.ALL)
+    private int prodId;
+    private int orderId;
+    private int CustomerId;
+    @OneToMany
     private List<Products> products = new ArrayList<>();
 }

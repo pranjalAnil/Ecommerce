@@ -61,7 +61,7 @@ public class CustomerController {
         return new ResponseEntity<>(customerService.orderProd(customerId,prodId,orderDto),HttpStatus.OK);
     }
 
-    @GetMapping("/{customerId}/my9Orders")
+    @GetMapping("/{customerId}/myOrders")
     public ResponseEntity<?> getProdList(@PathVariable int customerId){
         return new ResponseEntity<>(customerService.myOrders(customerId),HttpStatus.OK);
     }
@@ -77,6 +77,9 @@ public class CustomerController {
        List<CartDto> cartDto = cartService.getCart(customerId);
         return new ResponseEntity<>(cartDto, HttpStatus.OK);
     }
+
+
+
 
    /* @PostMapping("/order")
     public ResponseEntity<?> orderProduct(@PathVariable int prodId) {
