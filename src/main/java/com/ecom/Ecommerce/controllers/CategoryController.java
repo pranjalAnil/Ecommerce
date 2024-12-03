@@ -1,8 +1,7 @@
-package com.ecom.Ecommerce.cotrollers;
+package com.ecom.Ecommerce.controllers;
 
 import com.ecom.Ecommerce.payloads.CategoryDto;
 import com.ecom.Ecommerce.services.CategoryService;
-import com.ecom.Ecommerce.services.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
