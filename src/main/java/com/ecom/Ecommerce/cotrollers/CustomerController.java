@@ -1,6 +1,4 @@
 package com.ecom.Ecommerce.cotrollers;
-
-import com.ecom.Ecommerce.entities.Cart;
 import com.ecom.Ecommerce.payloads.CartDto;
 import com.ecom.Ecommerce.payloads.CustomerDto;
 import com.ecom.Ecommerce.payloads.OrderDto;
@@ -57,7 +55,7 @@ public class CustomerController {
     }
 
     @PostMapping("/{customerId}/orderProd/{prodId}")
-    public ResponseEntity<OrderPlaced> orderPro(@RequestBody OrderDto orderDto, @PathVariable int prodId,@PathVariable int customerId){
+    public ResponseEntity<OrderPlaced> orderPro(@RequestBody OrderDto orderDto, @PathVariable int prodId,@PathVariable int customerId ){
         return new ResponseEntity<>(customerService.orderProd(customerId,prodId,orderDto),HttpStatus.OK);
     }
 
@@ -78,12 +76,4 @@ public class CustomerController {
         return new ResponseEntity<>(cartDto, HttpStatus.OK);
     }
 
-
-
-
-   /* @PostMapping("/order")
-    public ResponseEntity<?> orderProduct(@PathVariable int prodId) {
-
-
-    }*/
 }

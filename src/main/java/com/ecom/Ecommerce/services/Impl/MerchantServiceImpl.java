@@ -12,7 +12,6 @@ import java.util.Objects;
 
 @Service
 public class MerchantServiceImpl implements MerchantService {
-
     @Autowired
     MerchantRepo merchantRepo;
     @Override

@@ -1,8 +1,10 @@
 package com.ecom.Ecommerce.services.Impl;
 import com.ecom.Ecommerce.Exception.ResourceNotFoundException;
+import com.ecom.Ecommerce.entities.Category;
 import com.ecom.Ecommerce.entities.Merchant;
 import com.ecom.Ecommerce.entities.Products;
 import com.ecom.Ecommerce.payloads.ProductsDto;
+import com.ecom.Ecommerce.repo.CategoryRepo;
 import com.ecom.Ecommerce.repo.MerchantRepo;
 import com.ecom.Ecommerce.repo.ProductRepo;
 import com.ecom.Ecommerce.services.ProductService;
@@ -21,12 +23,19 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     MerchantRepo merchantRepo;
 
+    @Autowired
+    CategoryRepo categoryRepo;
+
     @Override
-    public ProductsDto addProducts(ProductsDto productsDto, int merchantID) {
+    public ProductsDto addProducts(ProductsDto productsDto, int merchantID,int categoryId) {
         Products products = new Products();
         Merchant merchant= merchantRepo.findById(merchantID).orElseThrow(
                 ()->new ResourceNotFoundException("merchant","merchantId",merchantID)
         );
+        Category category=categoryRepo.findById(categoryId).orElseThrow(
+                ()->new ResourceNotFoundException("category","categoryId",categoryId)
+        );
+        products.setCategory(category);
         products.setMerchant(merchant);
         BeanUtils.copyProperties(productsDto, products);
         productRepo.save(products);
@@ -64,10 +73,14 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public String deleteProducts(int prodId) {
-        productRepo.deleteById(prodId);
-        return "Product deleted";
-    }
+        try {
+            productRepo.deleteById(prodId);
+            return "Product deleted";
+        }catch (ResourceNotFoundException resourceNotFoundException){
+            throw new ResourceNotFoundException("product","productId",prodId);
+        }
 
+    }
     @Override
     public ProductsDto orderProduct(int prodId) {
        Products products = productRepo.findById(prodId).orElseThrow(

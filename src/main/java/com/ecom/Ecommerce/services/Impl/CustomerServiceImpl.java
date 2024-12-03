@@ -2,15 +2,9 @@ package com.ecom.Ecommerce.services.Impl;
 import com.ecom.Ecommerce.Exception.OrderedProdMoreThanNumOfProd;
 import com.ecom.Ecommerce.Exception.ResourceNotFoundException;
 import com.ecom.Ecommerce.constants.Constant;
-import com.ecom.Ecommerce.entities.OrderedProd;
-import com.ecom.Ecommerce.entities.Products;
-import com.ecom.Ecommerce.entities.Shipment;
+import com.ecom.Ecommerce.entities.*;
 import com.ecom.Ecommerce.payloads.*;
-import com.ecom.Ecommerce.entities.Customer;
-import com.ecom.Ecommerce.repo.CustomerRepo;
-import com.ecom.Ecommerce.repo.OrderedProdRepo;
-import com.ecom.Ecommerce.repo.ProductRepo;
-import com.ecom.Ecommerce.repo.ShipmentRepo;
+import com.ecom.Ecommerce.repo.*;
 import com.ecom.Ecommerce.services.CustomerService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +27,9 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Autowired
     ShipmentRepo shipmentRepo;
+
+    @Autowired
+    CategoryRepo categoryRepo;
 
     @Override
     public CustomerDto createAcc(CustomerDto customerDto) {
@@ -69,7 +66,8 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public OrderPlaced orderProd(int customerId,int prodID, OrderDto orderedDto) {
+    public OrderPlaced orderProd(int customerId, int prodID, OrderDto orderedDto) {
+
         OrderedProd orderedProd=new OrderedProd();
         Customer customer=customerRepo.findById(customerId).orElseThrow(
                 ()->new ResourceNotFoundException("customer","customerId",customerId)

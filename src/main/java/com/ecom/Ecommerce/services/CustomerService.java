@@ -1,6 +1,5 @@
 package com.ecom.Ecommerce.services;
 
-import com.ecom.Ecommerce.entities.OrderedProd;
 import com.ecom.Ecommerce.payloads.CustomerDto;
 import com.ecom.Ecommerce.payloads.OrderDto;
 import com.ecom.Ecommerce.payloads.OrderPlaced;

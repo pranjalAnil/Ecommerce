@@ -93,8 +93,6 @@ public class DeliveryBoyImpl implements DeliveryBoyService {
     @Override
     public List<ShipmentDto> getAllShipments(int deliveryBoyId){
         List<Shipment> shipment= shipmentRepo.findAll();
-
-
         return shipment.stream().map(
                 ship->{
                     ShipmentDto shipmentDto=new ShipmentDto();
