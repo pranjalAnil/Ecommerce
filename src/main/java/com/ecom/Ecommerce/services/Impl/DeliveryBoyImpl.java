@@ -1,4 +1,5 @@
 package com.ecom.Ecommerce.services.Impl;
+import com.ecom.Ecommerce.Exception.ResourceNotFoundException;
 import com.ecom.Ecommerce.constants.Constant;
 import com.ecom.Ecommerce.entities.Customer;
 import com.ecom.Ecommerce.entities.DeliveryBoy;
@@ -45,7 +46,9 @@ public class DeliveryBoyImpl implements DeliveryBoyService {
 
     @Override
     public DeliveryBoyDto updateDeliveryBoy(DeliveryBoyDto deliveryBoyDto, int id) {
-        DeliveryBoy deliveryBoy=deliveryBoyRepo.findById(id).orElseThrow();
+        DeliveryBoy deliveryBoy=deliveryBoyRepo.findById(id).orElseThrow(
+                ()->new ResourceNotFoundException("deliveryBoy","deliveryBoyId" ,id)
+        );
         deliveryBoy.setMobile(deliveryBoy.getMobile());
         deliveryBoy.setEmail(deliveryBoy.getEmail());
         deliveryBoy.setName(deliveryBoyDto.getName());
@@ -56,7 +59,9 @@ public class DeliveryBoyImpl implements DeliveryBoyService {
 
     @Override
     public String deleteDeliverBoy(String email) {
-        DeliveryBoy deliveryBoy=deliveryBoyRepo.findByEmail(email).orElseThrow();
+        DeliveryBoy deliveryBoy=deliveryBoyRepo.findByEmail(email).orElseThrow(
+                ()->new ResourceNotFoundException("deliveryBoy","email " +email,0)
+        );
         deliveryBoyRepo.delete(deliveryBoy);
         return "Delivery Boy deleted";
     }
@@ -75,7 +80,9 @@ public class DeliveryBoyImpl implements DeliveryBoyService {
 
     @Override
     public DeliveryBoyDto getDeliveryBoyByEmail(String email) {
-        DeliveryBoy deliveryBoy=deliveryBoyRepo.findByEmail(email).orElseThrow();
+        DeliveryBoy deliveryBoy=deliveryBoyRepo.findByEmail(email).orElseThrow(
+                ()->new ResourceNotFoundException("customer","email " +email,0)
+        );
         DeliveryBoyDto deliveryBoyDto=new DeliveryBoyDto();
         BeanUtils.copyProperties(deliveryBoy,deliveryBoyDto);
         return deliveryBoyDto;
@@ -91,7 +98,9 @@ public class DeliveryBoyImpl implements DeliveryBoyService {
         return shipment.stream().map(
                 ship->{
                     ShipmentDto shipmentDto=new ShipmentDto();
-                    Customer customer=customerRepo.findById(ship.getCustomerId()).orElseThrow();
+                    Customer customer=customerRepo.findById(ship.getCustomerId()).orElseThrow(
+                            ()->new ResourceNotFoundException("customer","customerId ",ship.getCustomerId())
+                    );
                     CustomerDtoShipment customerDtoShipment=new CustomerDtoShipment();
                     BeanUtils.copyProperties(customer,customerDtoShipment);
                     shipmentDto.setCustomerDtoShipment(customerDtoShipment);
@@ -103,10 +112,14 @@ public class DeliveryBoyImpl implements DeliveryBoyService {
 
     @Override
     public String successfulDelivery(int shipmentId, int deliveryByoId) {
-        Shipment shipment=shipmentRepo.findById(shipmentId).orElseThrow();
+        Shipment shipment=shipmentRepo.findById(shipmentId).orElseThrow(
+                ()->new ResourceNotFoundException("shipment","shipmentId ",shipmentId)
+        );
         shipment.setStatus(Constant.delivered);
         shipmentRepo.save(shipment);
-        OrderedProd orderedProd= orderedProdRepo.findById(shipment.getOrderId()).orElseThrow();
+        OrderedProd orderedProd= orderedProdRepo.findById(shipment.getOrderId()).orElseThrow(
+                ()->new ResourceNotFoundException("orderedPro","OrderId",shipment.getOrderId())
+        );
         orderedProd.setStatus(Constant.delivered);
         orderedProdRepo.save(orderedProd);
         return "Delivered Order";
@@ -117,7 +130,9 @@ public class DeliveryBoyImpl implements DeliveryBoyService {
         Shipment shipment=shipmentRepo.findById(shipmentId).orElseThrow();
         shipment.setStatus(Constant.cancel);
         shipmentRepo.save(shipment);
-        OrderedProd orderedProd= orderedProdRepo.findById(shipment.getOrderId()).orElseThrow();
+        OrderedProd orderedProd= orderedProdRepo.findById(shipment.getOrderId()).orElseThrow(
+                ()->new ResourceNotFoundException("orderedPro","OrderId",shipment.getOrderId())
+        );
         orderedProd.setStatus(Constant.cancel);
         orderedProdRepo.save(orderedProd);
         return "Order Canceled";

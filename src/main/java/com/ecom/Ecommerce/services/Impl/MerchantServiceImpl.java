@@ -1,5 +1,6 @@
 package com.ecom.Ecommerce.services.Impl;
 
+import com.ecom.Ecommerce.Exception.ResourceNotFoundException;
 import com.ecom.Ecommerce.payloads.MerchantDto;
 import com.ecom.Ecommerce.entities.Merchant;
 import com.ecom.Ecommerce.repo.MerchantRepo;
@@ -25,7 +26,9 @@ public class MerchantServiceImpl implements MerchantService {
 
     @Override
     public MerchantDto updateAcc(MerchantDto merchantDto, String email) {
-        Merchant merchant=merchantRepo.findByEmail(email).orElseThrow();
+        Merchant merchant=merchantRepo.findByEmail(email).orElseThrow(
+                ()->new ResourceNotFoundException("Merchant","email"+email,0)
+        );
         merchant.setMerchantName(merchantDto.getMerchantName());
         merchant.setAddress(merchantDto.getAddress());
         merchant.setMobile(merchantDto.getMobile());
@@ -41,7 +44,9 @@ public class MerchantServiceImpl implements MerchantService {
 
     @Override
     public String deleteAccount(String email) {
-        merchantRepo.delete(merchantRepo.findByEmail(email).orElseThrow());
+        merchantRepo.delete(merchantRepo.findByEmail(email).orElseThrow(
+                ()->new ResourceNotFoundException("Merchant","email"+email,0)
+        ));
         return "User Deleted";
     }
 }

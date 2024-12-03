@@ -1,5 +1,5 @@
     package com.ecom.Ecommerce.services.Impl;
-
+    import com.ecom.Ecommerce.Exception.ResourceNotFoundException;
     import com.ecom.Ecommerce.entities.Cart;
     import com.ecom.Ecommerce.entities.Customer;
     import com.ecom.Ecommerce.entities.Products;
@@ -12,7 +12,6 @@
     import org.springframework.beans.BeanUtils;
     import org.springframework.beans.factory.annotation.Autowired;
     import org.springframework.stereotype.Service;
-
     import java.util.ArrayList;
     import java.util.List;
 
@@ -34,16 +33,17 @@
             Cart cart = new Cart();
             CartDto cartDto = new CartDto();
             ProductsDto productsDto = new ProductsDto();
-            Products products = productRepo.findById(prodId).orElseThrow();
+            Products products = productRepo.findById(prodId).orElseThrow(
+                    ()->new ResourceNotFoundException("Product","productId",prodId)
+            );
             BeanUtils.copyProperties(products, productsDto);
             cartDto.setProductsDto(productsDto);
             System.out.println(products);
-            Customer customer = customerRepo.findById(customerId).orElseThrow();
-          //  cart.setCustomer(customer);
-            if (customer != null) {
-                cartDto.setCustomerId(customer.getCustomerId());
-                System.out.println(cartDto.getCustomerId());
-            }
+            Customer customer = customerRepo.findById(customerId).orElseThrow(
+                    ()->new ResourceNotFoundException("customer","customerID",prodId)
+            );
+            cartDto.setCustomerId(customer.getCustomerId());
+            System.out.println(cartDto.getCustomerId());
             BeanUtils.copyProperties(cartDto, cart);
             cart.setProductId(products.getProdId());
             cartRepo.save(cart);
@@ -66,16 +66,13 @@
         public List<CartDto> getCart(int customerId) {
             System.out.println("Received customerId: " + customerId);
             ProductsDto productsDto = new ProductsDto();
-        //    Customer customer = customerRepo.findById(customerId).orElseThrow();
             List<Cart> list = cartRepo.findByCustomerId(customerId);
             System.out.println(list);
             List<CartDto> list1 = new ArrayList<>();
             for (Cart cart : list){
-                if (cart.getProductId() == 0) {
-                    // Skip cart entries with invalid productId
-                    continue;
-                }
-               Products products1 = productRepo.findById(cart.getProductId()).orElseThrow();
+               Products products1 = productRepo.findById(cart.getProductId()).orElseThrow(
+                      ()->new ResourceNotFoundException("customer","customerID",cart.getProductId())
+               );
                 CartDto cartDto = new CartDto();
                 BeanUtils.copyProperties(products1, productsDto);
                 cartDto.setProductsDto(productsDto);

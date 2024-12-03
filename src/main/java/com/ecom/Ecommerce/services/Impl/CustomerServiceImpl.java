@@ -1,4 +1,6 @@
 package com.ecom.Ecommerce.services.Impl;
+import com.ecom.Ecommerce.Exception.OrderedProdMoreThanNumOfProd;
+import com.ecom.Ecommerce.Exception.ResourceNotFoundException;
 import com.ecom.Ecommerce.constants.Constant;
 import com.ecom.Ecommerce.entities.OrderedProd;
 import com.ecom.Ecommerce.entities.Products;
@@ -13,7 +15,6 @@ import com.ecom.Ecommerce.services.CustomerService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -44,7 +45,9 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public CustomerDto updateAcc(CustomerDto customerDto,String email) {
-        Customer customer= customerRepo.findByEmail(email).orElseThrow();
+        Customer customer= customerRepo.findByEmail(email).orElseThrow(
+                ()->new ResourceNotFoundException("customer","email " +email,0)
+        );
         customer.setCustomerName(customerDto.getCustomerName());
         if (!Objects.equals(customerDto.getEmail(), email) || customerDto.getEmail() != null) {
             customer.setEmail(customerDto.getEmail());
@@ -59,16 +62,23 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public String deleteAccount(String email) {
-        customerRepo.delete(customerRepo.findByEmail(email).orElseThrow());
+        customerRepo.delete(customerRepo.findByEmail(email).orElseThrow(
+                ()->new ResourceNotFoundException("customer","email " +email,0)
+        ));
         return "Account Deleted";
     }
 
     @Override
     public OrderPlaced orderProd(int customerId,int prodID, OrderDto orderedDto) {
         OrderedProd orderedProd=new OrderedProd();
-        Customer customer=customerRepo.findById(customerId).orElseThrow();
-        Products products=productRepo.findById(prodID).orElseThrow();
+        Customer customer=customerRepo.findById(customerId).orElseThrow(
+                ()->new ResourceNotFoundException("customer","customerId",customerId)
+        );
+        Products products=productRepo.findById(prodID).orElseThrow(
+                ()->new ResourceNotFoundException("product","productId",prodID)
+        );
         if(products.getNumOfProducts()!=0) {
+
             if(orderedDto.getQuantity()<=products.getNumOfProducts()) {
                 BeanUtils.copyProperties(orderedDto, orderedProd);
                 orderedProd.setProductId(products.getProdId());
@@ -93,12 +103,11 @@ public class CustomerServiceImpl implements CustomerService {
                 return orderPlaced;
             }
             else {
-                throw new RuntimeException();
-
+                throw new OrderedProdMoreThanNumOfProd(orderedDto.getQuantity(),products.getNumOfProducts());
             }
         }
         else {
-            throw new RuntimeException();
+            throw new OrderedProdMoreThanNumOfProd(orderedDto.getQuantity());
         }
     }
 
@@ -111,7 +120,9 @@ public class CustomerServiceImpl implements CustomerService {
              orderedProd1.setQuantity(orderedProd.getQuantity());
              orderedProd1.setOrderId(orderedProd.getOrderId());
              orderedProd1.setStatus(orderedProd.getStatus());
-             orderedProd1.setProducts(productRepo.findById(orderedProd.getProductId()).orElseThrow());
+             orderedProd1.setProducts(productRepo.findById(orderedProd.getProductId()).orElseThrow(
+                     ()->new ResourceNotFoundException("product","productId",orderedProd.getProductId())
+             ));
              previousOrders.add(orderedProd1);
          }
          return previousOrders;
