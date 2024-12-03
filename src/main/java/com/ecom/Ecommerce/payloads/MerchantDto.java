@@ -3,7 +3,7 @@ import lombok.Data;
 
 @Data
 public class MerchantDto {
-    private int id;
+    private int merchantId;
     private String email;
     private String mobile;
     private String password;
