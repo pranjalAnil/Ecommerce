@@ -1,20 +1,17 @@
 package com.ecom.Ecommerce.services.Impl;
+import com.ecom.Ecommerce.Exception.EmailAlreadyExists;
 import com.ecom.Ecommerce.Exception.ResourceNotFoundException;
 import com.ecom.Ecommerce.constants.Constant;
-import com.ecom.Ecommerce.entities.Customer;
-import com.ecom.Ecommerce.entities.DeliveryBoy;
-import com.ecom.Ecommerce.entities.OrderedProd;
-import com.ecom.Ecommerce.entities.Shipment;
+import com.ecom.Ecommerce.entities.*;
 import com.ecom.Ecommerce.payloads.CustomerDtoShipment;
 import com.ecom.Ecommerce.payloads.DeliveryBoyDto;
 import com.ecom.Ecommerce.payloads.ShipmentDto;
-import com.ecom.Ecommerce.repo.CustomerRepo;
-import com.ecom.Ecommerce.repo.DeliveryBoyRepo;
-import com.ecom.Ecommerce.repo.OrderedProdRepo;
-import com.ecom.Ecommerce.repo.ShipmentRepo;
+import com.ecom.Ecommerce.repo.*;
 import com.ecom.Ecommerce.services.DeliveryBoyService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
@@ -38,11 +35,28 @@ public class DeliveryBoyImpl implements DeliveryBoyService {
     @Autowired
     CustomerRepo customerRepo;
 
+    @Autowired
+    MerchantRepo merchantRepo;
+
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
 
     @Override
     public DeliveryBoyDto addDeliverBoy(DeliveryBoyDto deliveryBoyDto) {
+        List<Merchant> merchantList=merchantRepo.findAll();
+        for(Merchant merchant:merchantList){
+            if(deliveryBoyDto.getEmail().equals(merchant.getEmail())){
+                throw new EmailAlreadyExists("email","emailId",deliveryBoyDto.getEmail());
+            }
+        }
+
+        List<Customer> customerList=customerRepo.findAll();
+        for(Customer customer:customerList){
+            if(deliveryBoyDto.getEmail().equals(customer.getEmail())){
+                throw new EmailAlreadyExists("email","emailId",deliveryBoyDto.getEmail());
+            }
+        }
+
         DeliveryBoy deliveryBoy=new DeliveryBoy();
         BeanUtils.copyProperties(deliveryBoyDto,deliveryBoy);
         deliveryBoy.setPassword(encoder.encode(deliveryBoy.getPassword()));
@@ -53,10 +67,27 @@ public class DeliveryBoyImpl implements DeliveryBoyService {
     }
 
     @Override
-    public DeliveryBoyDto updateDeliveryBoy(DeliveryBoyDto deliveryBoyDto, int id) {
-        DeliveryBoy deliveryBoy=deliveryBoyRepo.findById(id).orElseThrow(
-                ()->new ResourceNotFoundException("deliveryBoy","deliveryBoyId" ,id)
-        );
+
+    public DeliveryBoyDto updateDeliveryBoy(DeliveryBoyDto deliveryBoyDto) {
+  Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email =  authentication.getName();
+        DeliveryBoy deliveryBoy = deliveryBoyRepo.findByEmail(email).orElseThrow(
+                ()->new ResourceNotFoundException("deliveryBoy","deliveryBoyId"+email,0));
+        List<Merchant> merchantList=merchantRepo.findAll();
+        for(Merchant merchant:merchantList){
+            if(deliveryBoyDto.getEmail().equals(merchant.getEmail())){
+                throw new EmailAlreadyExists("email","emailId",deliveryBoyDto.getEmail());
+            }
+        }
+
+        List<Customer> customerList=customerRepo.findAll();
+        for(Customer customer:customerList){
+            if(deliveryBoyDto.getEmail().equals(customer.getEmail())){
+                throw new EmailAlreadyExists("email","emailId",deliveryBoyDto.getEmail());
+            }
+        }
+
+
         deliveryBoy.setMobile(deliveryBoy.getMobile());
         deliveryBoy.setEmail(deliveryBoy.getEmail());
         deliveryBoy.setName(deliveryBoyDto.getName());
@@ -66,7 +97,9 @@ public class DeliveryBoyImpl implements DeliveryBoyService {
     }
 
     @Override
-    public String deleteDeliverBoy(String email) {
+    public String deleteDeliverBoy() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email =  authentication.getName();
         DeliveryBoy deliveryBoy=deliveryBoyRepo.findByEmail(email).orElseThrow(
                 ()->new ResourceNotFoundException("deliveryBoy","email " +email,0)
         );
@@ -87,7 +120,9 @@ public class DeliveryBoyImpl implements DeliveryBoyService {
     }
 
     @Override
-    public DeliveryBoyDto getDeliveryBoyByEmail(String email) {
+    public DeliveryBoyDto getDeliveryBoyByEmail() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email =  authentication.getName();
         DeliveryBoy deliveryBoy=deliveryBoyRepo.findByEmail(email).orElseThrow(
                 ()->new ResourceNotFoundException("customer","email " +email,0)
         );
@@ -99,7 +134,7 @@ public class DeliveryBoyImpl implements DeliveryBoyService {
 
 
     @Override
-    public List<ShipmentDto> getAllShipments(int deliveryBoyId){
+    public List<ShipmentDto> getAllShipments(){
         List<Shipment> shipment= shipmentRepo.findAll();
         return shipment.stream().map(
                 ship->{
@@ -117,7 +152,7 @@ public class DeliveryBoyImpl implements DeliveryBoyService {
     }
 
     @Override
-    public String successfulDelivery(int shipmentId, int deliveryByoId) {
+    public String successfulDelivery(int shipmentId) {
         Shipment shipment=shipmentRepo.findById(shipmentId).orElseThrow(
                 ()->new ResourceNotFoundException("shipment","shipmentId ",shipmentId)
         );
@@ -132,7 +167,7 @@ public class DeliveryBoyImpl implements DeliveryBoyService {
     }
 
     @Override
-    public String orderCancelation(int shipmentId,int deliveryByoId) {
+    public String orderCancelation(int shipmentId) {
         Shipment shipment=shipmentRepo.findById(shipmentId).orElseThrow();
         shipment.setStatus(Constant.cancel);
         shipmentRepo.save(shipment);

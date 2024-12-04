@@ -11,6 +11,8 @@
     import com.ecom.Ecommerce.services.CartService;
     import org.springframework.beans.BeanUtils;
     import org.springframework.beans.factory.annotation.Autowired;
+    import org.springframework.security.core.Authentication;
+    import org.springframework.security.core.context.SecurityContextHolder;
     import org.springframework.stereotype.Service;
     import java.util.ArrayList;
     import java.util.List;
@@ -28,8 +30,12 @@
         CustomerRepo customerRepo;
 
         @Override
-        public CartDto addToCart(int customerId, int prodId) {
-            System.out.println("Received customerId: " + customerId);
+        public CartDto addToCart(int prodId) {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String email =  authentication.getName();
+            Customer customer = customerRepo.findByEmail(email).orElseThrow(()->new ResourceNotFoundException("customer","email " +email,0));
+
+            System.out.println("Received customerId: " + customer.getCustomerId());
             Cart cart = new Cart();
             CartDto cartDto = new CartDto();
             ProductsDto productsDto = new ProductsDto();
@@ -39,9 +45,9 @@
             BeanUtils.copyProperties(products, productsDto);
             cartDto.setProductsDto(productsDto);
             System.out.println(products);
-            Customer customer = customerRepo.findById(customerId).orElseThrow(
+          /*  Customer customer = customerRepo.findById(customerId).orElseThrow(
                     ()->new ResourceNotFoundException("customer","customerID",prodId)
-            );
+            );*/
             cartDto.setCustomerId(customer.getCustomerId());
             System.out.println(cartDto.getCustomerId());
             BeanUtils.copyProperties(cartDto, cart);
@@ -63,10 +69,14 @@
         }
 
         @Override
-        public List<CartDto> getCart(int customerId) {
-            System.out.println("Received customerId: " + customerId);
+        public List<CartDto> getCart() {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String email =  authentication.getName();
+            Customer customer = customerRepo.findByEmail(email).orElseThrow(()->new ResourceNotFoundException("customer","email " +email,0));
+
+            System.out.println("Received customerId: " + customer.getCustomerId());
             ProductsDto productsDto = new ProductsDto();
-            List<Cart> list = cartRepo.findByCustomerId(customerId);
+            List<Cart> list = cartRepo.findByCustomerId(customer.getCustomerId());
             System.out.println(list);
             List<CartDto> list1 = new ArrayList<>();
             for (Cart cart : list){
@@ -83,8 +93,9 @@
         }
 
         @Override
-        public CartDto removeFromCart(int prodId) {
-            return null;
+        public String removeFromCart(int cartId) {
+            cartRepo.deleteById(cartId);
+            return "Product removed" ;
         }
 
         @Override

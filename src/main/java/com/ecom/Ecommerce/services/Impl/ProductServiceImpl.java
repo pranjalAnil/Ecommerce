@@ -10,6 +10,8 @@ import com.ecom.Ecommerce.repo.ProductRepo;
 import com.ecom.Ecommerce.services.ProductService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,10 +29,12 @@ public class ProductServiceImpl implements ProductService {
     CategoryRepo categoryRepo;
 
     @Override
-    public ProductsDto addProducts(ProductsDto productsDto, int merchantID,int categoryId) {
+    public ProductsDto addProducts(ProductsDto productsDto, int categoryId) {
         Products products = new Products();
-        Merchant merchant= merchantRepo.findById(merchantID).orElseThrow(
-                ()->new ResourceNotFoundException("merchant","merchantId",merchantID)
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email =  authentication.getName();
+        Merchant merchant= merchantRepo.findByEmail(email).orElseThrow(
+                ()->new ResourceNotFoundException("merchant","merchantId "+email,0)
         );
         Category category=categoryRepo.findById(categoryId).orElseThrow(
                 ()->new ResourceNotFoundException("category","categoryId",categoryId)
@@ -39,6 +43,7 @@ public class ProductServiceImpl implements ProductService {
         products.setMerchant(merchant);
         BeanUtils.copyProperties(productsDto, products);
         productRepo.save(products);
+        productsDto.setCategory(category);
         BeanUtils.copyProperties(products,productsDto);
         return productsDto;
     }
