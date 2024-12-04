@@ -1,4 +1,4 @@
-package com.ecom.Ecommerce.cotrollers;
+package com.ecom.Ecommerce.controllers;
 
 
 import com.ecom.Ecommerce.services.DeliveryBoyService;
