@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
@@ -37,9 +36,9 @@ public class MerchantController {
         return new ResponseEntity<>(merchantService.deleteAccount(email),HttpStatus.OK);
     }
 
-    @PostMapping("/{merchantId}/add-product")
-    public ResponseEntity<ProductsDto> addProducts(@RequestBody ProductsDto productsDto,@PathVariable int merchantId) {
-        ProductsDto productsDto1 = productService.addProducts(productsDto,merchantId);
+    @PostMapping("/{merchantId}/category/{categoryId}/add-product")
+    public ResponseEntity<ProductsDto> addProducts(@RequestBody ProductsDto productsDto,@PathVariable int merchantId,int categoryId) {
+        ProductsDto productsDto1 = productService.addProducts(productsDto,merchantId,categoryId);
         return new ResponseEntity<>(productsDto1, HttpStatus.CREATED);
     }
 

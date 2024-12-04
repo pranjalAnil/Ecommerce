@@ -38,9 +38,9 @@ public class Products {
 
 
 
-    @ManyToOne
-    @JoinColumn(name = "shipment_id")
-    private Shipment shipment;
+//    @ManyToOne
+//    @JoinColumn(name = "shipment_id")
+//    private Shipment shipment;
 
   /*  @ManyToOne
     @JoinColumn(name = "order_id")

@@ -1,21 +1,15 @@
 package com.ecom.Ecommerce.services.Impl;
+import com.ecom.Ecommerce.Exception.OrderedProdMoreThanNumOfProd;
+import com.ecom.Ecommerce.Exception.ResourceNotFoundException;
 import com.ecom.Ecommerce.constants.Constant;
-import com.ecom.Ecommerce.entities.OrderedProd;
-import com.ecom.Ecommerce.entities.Products;
-import com.ecom.Ecommerce.payloads.CustomerDto;
-import com.ecom.Ecommerce.entities.Customer;
-import com.ecom.Ecommerce.payloads.OrderDto;
-import com.ecom.Ecommerce.payloads.OrderPlaced;
-import com.ecom.Ecommerce.payloads.PreviousOrders;
-import com.ecom.Ecommerce.repo.CustomerRepo;
-import com.ecom.Ecommerce.repo.OrderedProdRepo;
-import com.ecom.Ecommerce.repo.ProductRepo;
+import com.ecom.Ecommerce.entities.*;
+import com.ecom.Ecommerce.payloads.*;
+import com.ecom.Ecommerce.repo.*;
 import com.ecom.Ecommerce.services.CustomerService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -33,7 +27,15 @@ public class CustomerServiceImpl implements CustomerService {
     @Autowired
     ProductRepo productRepo;
 
+
+    @Autowired
+    ShipmentRepo shipmentRepo;
+
+    @Autowired
+    CategoryRepo categoryRepo;
+
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
 
     @Override
     public CustomerDto createAcc(CustomerDto customerDto) {
@@ -48,7 +50,9 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public CustomerDto updateAcc(CustomerDto customerDto,String email) {
-        Customer customer= customerRepo.findByEmail(email).orElseThrow();
+        Customer customer= customerRepo.findByEmail(email).orElseThrow(
+                ()->new ResourceNotFoundException("customer","email " +email,0)
+        );
         customer.setCustomerName(customerDto.getCustomerName());
         if (!Objects.equals(customerDto.getEmail(), email) || customerDto.getEmail() != null) {
             customer.setEmail(customerDto.getEmail());
@@ -63,31 +67,53 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public String deleteAccount(String email) {
-        customerRepo.delete(customerRepo.findByEmail(email).orElseThrow());
+        customerRepo.delete(customerRepo.findByEmail(email).orElseThrow(
+                ()->new ResourceNotFoundException("customer","email " +email,0)
+        ));
         return "Account Deleted";
     }
 
     @Override
-    public OrderPlaced orderProd(int customerId,int prodID, OrderDto orderedDto) {
+    public OrderPlaced orderProd(int customerId, int prodID, OrderDto orderedDto) {
+
         OrderedProd orderedProd=new OrderedProd();
-        Customer customer=customerRepo.findById(customerId).orElseThrow();
-        Products products=productRepo.findById(prodID).orElseThrow();
+        Customer customer=customerRepo.findById(customerId).orElseThrow(
+                ()->new ResourceNotFoundException("customer","customerId",customerId)
+        );
+        Products products=productRepo.findById(prodID).orElseThrow(
+                ()->new ResourceNotFoundException("product","productId",prodID)
+        );
         if(products.getNumOfProducts()!=0) {
-            BeanUtils.copyProperties(orderedDto, orderedProd);
-            orderedProd.setProductId(products.getProdId());
-            orderedProd.setCustomerId(customerId);
-            orderedProd.setStatus(Constant.order);
-            orderedProdRepo.save(orderedProd);
-            products.setNumOfProducts(products.getNumOfProducts() - 1);
-            productRepo.save(products);
-            OrderPlaced orderPlaced = new OrderPlaced();
-            orderPlaced.setProducts(products);
-            orderPlaced.setOrderId(orderedProd.getOrderId());
-            orderPlaced.setStr("Order Placed");
-            return orderPlaced;
+
+            if(orderedDto.getQuantity()<=products.getNumOfProducts()) {
+                BeanUtils.copyProperties(orderedDto, orderedProd);
+                orderedProd.setProductId(products.getProdId());
+                orderedProd.setCustomerId(customerId);
+                orderedProd.setStatus(Constant.order);
+                orderedProdRepo.save(orderedProd);
+                products.setNumOfProducts(products.getNumOfProducts() - orderedDto.getQuantity());
+                productRepo.save(products);
+
+                Shipment shipment=new Shipment();
+                shipment.setOrderId(orderedProd.getOrderId());
+                shipment.setProdId(prodID);
+                shipment.setStatus(Constant.order);
+                shipment.setCustomerId(customerId);
+                shipmentRepo.save(shipment);
+
+                OrderPlaced orderPlaced = new OrderPlaced();
+                orderPlaced.setProducts(products);
+                orderPlaced.setOrderId(orderedProd.getOrderId());
+                orderPlaced.setStr("Order Placed");
+
+                return orderPlaced;
+            }
+            else {
+                throw new OrderedProdMoreThanNumOfProd(orderedDto.getQuantity(),products.getNumOfProducts());
+            }
         }
         else {
-            throw new RuntimeException();
+            throw new OrderedProdMoreThanNumOfProd(orderedDto.getQuantity());
         }
     }
 
@@ -100,13 +126,19 @@ public class CustomerServiceImpl implements CustomerService {
              orderedProd1.setQuantity(orderedProd.getQuantity());
              orderedProd1.setOrderId(orderedProd.getOrderId());
              orderedProd1.setStatus(orderedProd.getStatus());
-             orderedProd1.setProducts(productRepo.findById(orderedProd.getProductId()).orElseThrow());
+             orderedProd1.setProducts(productRepo.findById(orderedProd.getProductId()).orElseThrow(
+                     ()->new ResourceNotFoundException("product","productId",orderedProd.getProductId())
+             ));
              previousOrders.add(orderedProd1);
          }
          return previousOrders;
 
 
     }
+
+
+
+
 
 
 }
