@@ -15,8 +15,10 @@ import com.ecom.Ecommerce.repo.ShipmentRepo;
 import com.ecom.Ecommerce.services.DeliveryBoyService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,6 +27,7 @@ public class DeliveryBoyImpl implements DeliveryBoyService {
 
     @Autowired
     DeliveryBoyRepo deliveryBoyRepo;
+
 
     @Autowired
     ShipmentRepo shipmentRepo;
@@ -35,10 +38,15 @@ public class DeliveryBoyImpl implements DeliveryBoyService {
     @Autowired
     CustomerRepo customerRepo;
 
+    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
+
     @Override
     public DeliveryBoyDto addDeliverBoy(DeliveryBoyDto deliveryBoyDto) {
         DeliveryBoy deliveryBoy=new DeliveryBoy();
         BeanUtils.copyProperties(deliveryBoyDto,deliveryBoy);
+        deliveryBoy.setPassword(encoder.encode(deliveryBoy.getPassword()));
+        deliveryBoy.setRoles(Arrays.asList("ROLE_DELIVERY"));
         deliveryBoyRepo.save(deliveryBoy);
         BeanUtils.copyProperties(deliveryBoy,deliveryBoyDto);
         return deliveryBoyDto;

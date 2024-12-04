@@ -8,8 +8,10 @@ import com.ecom.Ecommerce.repo.*;
 import com.ecom.Ecommerce.services.CustomerService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -25,16 +27,22 @@ public class CustomerServiceImpl implements CustomerService {
     @Autowired
     ProductRepo productRepo;
 
+
     @Autowired
     ShipmentRepo shipmentRepo;
 
     @Autowired
     CategoryRepo categoryRepo;
 
+    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
+
     @Override
     public CustomerDto createAcc(CustomerDto customerDto) {
         Customer customer =new Customer();
         BeanUtils.copyProperties(customerDto,customer);
+        customer.setPassword(encoder.encode(customer.getPassword()));
+        customer.setRoles(Arrays.asList("ROLE_CUSTOMER"));
         customerRepo.save(customer);
         BeanUtils.copyProperties(customer,customerDto);
         return customerDto;
