@@ -1,6 +1,5 @@
-package com.ecom.Ecommerce.cotrollers;
+package com.ecom.Ecommerce.controllers;
 
-import com.ecom.Ecommerce.entities.Customer;
 import com.ecom.Ecommerce.payloads.CustomerDto;
 import com.ecom.Ecommerce.payloads.LoginDto;
 import com.ecom.Ecommerce.payloads.MerchantDto;
