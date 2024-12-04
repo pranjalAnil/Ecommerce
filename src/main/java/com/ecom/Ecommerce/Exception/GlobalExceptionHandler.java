@@ -22,4 +22,12 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<APIResponse>(apiResponse, HttpStatus.CONFLICT);
 
     }
+
+    @ExceptionHandler(EmailAlreadyExists.class)
+    public ResponseEntity<APIResponse> emailAlreadyExists(EmailAlreadyExists ex){
+        String message= ex.getMessage();
+        APIResponse apiResponse=new APIResponse(message,false);
+        return new ResponseEntity<APIResponse>(apiResponse, HttpStatus.CONFLICT);
+
+    }
 }

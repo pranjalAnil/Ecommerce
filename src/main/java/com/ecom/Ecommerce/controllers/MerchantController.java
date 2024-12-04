@@ -25,7 +25,6 @@ public class MerchantController {
     @PutMapping("/updateAcc/{email}")
     public ResponseEntity<?> updateAcc(@RequestBody MerchantDto  merchantDto){
         return new ResponseEntity<>(merchantService.updateAcc(merchantDto),HttpStatus.OK);
-
     }
 
     @DeleteMapping("/deleteAcc/{email}")

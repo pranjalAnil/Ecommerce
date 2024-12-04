@@ -1,17 +1,12 @@
 package com.ecom.Ecommerce.services.Impl;
+import com.ecom.Ecommerce.Exception.EmailAlreadyExists;
 import com.ecom.Ecommerce.Exception.ResourceNotFoundException;
 import com.ecom.Ecommerce.constants.Constant;
-import com.ecom.Ecommerce.entities.Customer;
-import com.ecom.Ecommerce.entities.DeliveryBoy;
-import com.ecom.Ecommerce.entities.OrderedProd;
-import com.ecom.Ecommerce.entities.Shipment;
+import com.ecom.Ecommerce.entities.*;
 import com.ecom.Ecommerce.payloads.CustomerDtoShipment;
 import com.ecom.Ecommerce.payloads.DeliveryBoyDto;
 import com.ecom.Ecommerce.payloads.ShipmentDto;
-import com.ecom.Ecommerce.repo.CustomerRepo;
-import com.ecom.Ecommerce.repo.DeliveryBoyRepo;
-import com.ecom.Ecommerce.repo.OrderedProdRepo;
-import com.ecom.Ecommerce.repo.ShipmentRepo;
+import com.ecom.Ecommerce.repo.*;
 import com.ecom.Ecommerce.services.DeliveryBoyService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,11 +35,28 @@ public class DeliveryBoyImpl implements DeliveryBoyService {
     @Autowired
     CustomerRepo customerRepo;
 
+    @Autowired
+    MerchantRepo merchantRepo;
+
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
 
     @Override
     public DeliveryBoyDto addDeliverBoy(DeliveryBoyDto deliveryBoyDto) {
+        List<Merchant> merchantList=merchantRepo.findAll();
+        for(Merchant merchant:merchantList){
+            if(deliveryBoyDto.getEmail().equals(merchant.getEmail())){
+                throw new EmailAlreadyExists("email","emailId",deliveryBoyDto.getEmail());
+            }
+        }
+
+        List<Customer> customerList=customerRepo.findAll();
+        for(Customer customer:customerList){
+            if(deliveryBoyDto.getEmail().equals(customer.getEmail())){
+                throw new EmailAlreadyExists("email","emailId",deliveryBoyDto.getEmail());
+            }
+        }
+
         DeliveryBoy deliveryBoy=new DeliveryBoy();
         BeanUtils.copyProperties(deliveryBoyDto,deliveryBoy);
         deliveryBoy.setPassword(encoder.encode(deliveryBoy.getPassword()));
@@ -55,11 +67,28 @@ public class DeliveryBoyImpl implements DeliveryBoyService {
     }
 
     @Override
+
     public DeliveryBoyDto updateDeliveryBoy(DeliveryBoyDto deliveryBoyDto) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+  Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email =  authentication.getName();
         DeliveryBoy deliveryBoy = deliveryBoyRepo.findByEmail(email).orElseThrow(
                 ()->new ResourceNotFoundException("deliveryBoy","deliveryBoyId"+email,0));
+        List<Merchant> merchantList=merchantRepo.findAll();
+        for(Merchant merchant:merchantList){
+            if(deliveryBoyDto.getEmail().equals(merchant.getEmail())){
+                throw new EmailAlreadyExists("email","emailId",deliveryBoyDto.getEmail());
+            }
+        }
+
+        List<Customer> customerList=customerRepo.findAll();
+        for(Customer customer:customerList){
+            if(deliveryBoyDto.getEmail().equals(customer.getEmail())){
+                throw new EmailAlreadyExists("email","emailId",deliveryBoyDto.getEmail());
+            }
+        }
+        DeliveryBoy deliveryBoy=deliveryBoyRepo.findById(id).orElseThrow(
+                ()->new ResourceNotFoundException("deliveryBoy","deliveryBoyId" ,id)
+        );
 
         deliveryBoy.setMobile(deliveryBoy.getMobile());
         deliveryBoy.setEmail(deliveryBoy.getEmail());

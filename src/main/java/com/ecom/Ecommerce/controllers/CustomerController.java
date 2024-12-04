@@ -35,6 +35,7 @@ public class CustomerController {
     @PutMapping("/updateAcc")
     public ResponseEntity<CustomerDto> updateCustomerAccount(@RequestBody CustomerDto customerDto){
         CustomerDto customerDto1=customerService.updateAcc(customerDto);
+
         return new ResponseEntity<>(customerDto1,HttpStatus.OK);
     }
 
