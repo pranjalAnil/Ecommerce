@@ -7,11 +7,13 @@ import com.ecom.Ecommerce.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
 @RequestMapping("/merchant")
+@PreAuthorize("hasRole('ROLE_MERCHANT')")
 public class MerchantController {
 
     @Autowired
@@ -20,20 +22,15 @@ public class MerchantController {
     @Autowired
     ProductService productService;
 
-    @PostMapping("/createAcc")
-    public ResponseEntity<?> createMerchant(@RequestBody MerchantDto merchantDto){
-        return new ResponseEntity<>(merchantService.createAcc(merchantDto),HttpStatus.OK);
-    }
-
     @PutMapping("/updateAcc/{email}")
-    public ResponseEntity<?> updateAcc(@RequestBody MerchantDto  merchantDto, @PathVariable String email){
-        return new ResponseEntity<>(merchantService.updateAcc(merchantDto, email),HttpStatus.OK);
+    public ResponseEntity<?> updateAcc(@RequestBody MerchantDto  merchantDto){
+        return new ResponseEntity<>(merchantService.updateAcc(merchantDto),HttpStatus.OK);
 
     }
 
     @DeleteMapping("/deleteAcc/{email}")
-    public ResponseEntity<?> deleteAcc(@PathVariable String email){
-        return new ResponseEntity<>(merchantService.deleteAccount(email),HttpStatus.OK);
+    public ResponseEntity<?> deleteAcc(){
+        return new ResponseEntity<>(merchantService.deleteAccount(),HttpStatus.OK);
     }
 
     @PostMapping("/{merchantId}/category/{categoryId}/add-product")

@@ -15,6 +15,8 @@ import com.ecom.Ecommerce.repo.ShipmentRepo;
 import com.ecom.Ecommerce.services.DeliveryBoyService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
@@ -53,10 +55,12 @@ public class DeliveryBoyImpl implements DeliveryBoyService {
     }
 
     @Override
-    public DeliveryBoyDto updateDeliveryBoy(DeliveryBoyDto deliveryBoyDto, int id) {
-        DeliveryBoy deliveryBoy=deliveryBoyRepo.findById(id).orElseThrow(
-                ()->new ResourceNotFoundException("deliveryBoy","deliveryBoyId" ,id)
-        );
+    public DeliveryBoyDto updateDeliveryBoy(DeliveryBoyDto deliveryBoyDto) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email =  authentication.getName();
+        DeliveryBoy deliveryBoy = deliveryBoyRepo.findByEmail(email).orElseThrow(
+                ()->new ResourceNotFoundException("deliveryBoy","deliveryBoyId"+email,0));
+
         deliveryBoy.setMobile(deliveryBoy.getMobile());
         deliveryBoy.setEmail(deliveryBoy.getEmail());
         deliveryBoy.setName(deliveryBoyDto.getName());
@@ -66,7 +70,9 @@ public class DeliveryBoyImpl implements DeliveryBoyService {
     }
 
     @Override
-    public String deleteDeliverBoy(String email) {
+    public String deleteDeliverBoy() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email =  authentication.getName();
         DeliveryBoy deliveryBoy=deliveryBoyRepo.findByEmail(email).orElseThrow(
                 ()->new ResourceNotFoundException("deliveryBoy","email " +email,0)
         );
@@ -87,7 +93,9 @@ public class DeliveryBoyImpl implements DeliveryBoyService {
     }
 
     @Override
-    public DeliveryBoyDto getDeliveryBoyByEmail(String email) {
+    public DeliveryBoyDto getDeliveryBoyByEmail() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email =  authentication.getName();
         DeliveryBoy deliveryBoy=deliveryBoyRepo.findByEmail(email).orElseThrow(
                 ()->new ResourceNotFoundException("customer","email " +email,0)
         );
@@ -99,7 +107,7 @@ public class DeliveryBoyImpl implements DeliveryBoyService {
 
 
     @Override
-    public List<ShipmentDto> getAllShipments(int deliveryBoyId){
+    public List<ShipmentDto> getAllShipments(){
         List<Shipment> shipment= shipmentRepo.findAll();
         return shipment.stream().map(
                 ship->{
@@ -117,7 +125,7 @@ public class DeliveryBoyImpl implements DeliveryBoyService {
     }
 
     @Override
-    public String successfulDelivery(int shipmentId, int deliveryByoId) {
+    public String successfulDelivery(int shipmentId) {
         Shipment shipment=shipmentRepo.findById(shipmentId).orElseThrow(
                 ()->new ResourceNotFoundException("shipment","shipmentId ",shipmentId)
         );
@@ -132,7 +140,7 @@ public class DeliveryBoyImpl implements DeliveryBoyService {
     }
 
     @Override
-    public String orderCancelation(int shipmentId,int deliveryByoId) {
+    public String orderCancelation(int shipmentId) {
         Shipment shipment=shipmentRepo.findById(shipmentId).orElseThrow();
         shipment.setStatus(Constant.cancel);
         shipmentRepo.save(shipment);

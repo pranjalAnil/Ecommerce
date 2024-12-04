@@ -7,6 +7,8 @@ import com.ecom.Ecommerce.repo.MerchantRepo;
 import com.ecom.Ecommerce.services.MerchantService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -32,7 +34,9 @@ public class MerchantServiceImpl implements MerchantService {
     }
 
     @Override
-    public MerchantDto updateAcc(MerchantDto merchantDto, String email) {
+    public MerchantDto updateAcc(MerchantDto merchantDto) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email =  authentication.getName();
         Merchant merchant=merchantRepo.findByEmail(email).orElseThrow(
                 ()->new ResourceNotFoundException("Merchant","email"+email,0)
         );
@@ -50,7 +54,9 @@ public class MerchantServiceImpl implements MerchantService {
     }
 
     @Override
-    public String deleteAccount(String email) {
+    public String deleteAccount() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email =  authentication.getName();
         merchantRepo.delete(merchantRepo.findByEmail(email).orElseThrow(
                 ()->new ResourceNotFoundException("Merchant","email"+email,0)
         ));

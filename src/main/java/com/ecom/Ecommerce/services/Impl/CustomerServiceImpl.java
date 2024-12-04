@@ -8,12 +8,12 @@ import com.ecom.Ecommerce.repo.*;
 import com.ecom.Ecommerce.services.CustomerService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+
+import java.util.*;
 
 
 @Service
@@ -49,7 +49,10 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public CustomerDto updateAcc(CustomerDto customerDto,String email) {
+    public CustomerDto updateAcc(CustomerDto customerDto) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email =  authentication.getName();
+
         Customer customer= customerRepo.findByEmail(email).orElseThrow(
                 ()->new ResourceNotFoundException("customer","email " +email,0)
         );
@@ -66,7 +69,9 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public String deleteAccount(String email) {
+    public String deleteAccount() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email =  authentication.getName();
         customerRepo.delete(customerRepo.findByEmail(email).orElseThrow(
                 ()->new ResourceNotFoundException("customer","email " +email,0)
         ));
@@ -74,12 +79,12 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public OrderPlaced orderProd(int customerId, int prodID, OrderDto orderedDto) {
+    public OrderPlaced orderProd(int prodID, OrderDto orderedDto) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email =  authentication.getName();
+        Customer customer = customerRepo.findByEmail(email).orElseThrow(()->new ResourceNotFoundException("customer","customerId "+email,0));
 
         OrderedProd orderedProd=new OrderedProd();
-        Customer customer=customerRepo.findById(customerId).orElseThrow(
-                ()->new ResourceNotFoundException("customer","customerId",customerId)
-        );
         Products products=productRepo.findById(prodID).orElseThrow(
                 ()->new ResourceNotFoundException("product","productId",prodID)
         );
@@ -88,7 +93,7 @@ public class CustomerServiceImpl implements CustomerService {
             if(orderedDto.getQuantity()<=products.getNumOfProducts()) {
                 BeanUtils.copyProperties(orderedDto, orderedProd);
                 orderedProd.setProductId(products.getProdId());
-                orderedProd.setCustomerId(customerId);
+                orderedProd.setCustomerId(customer.getCustomerId());
                 orderedProd.setStatus(Constant.order);
                 orderedProdRepo.save(orderedProd);
                 products.setNumOfProducts(products.getNumOfProducts() - orderedDto.getQuantity());
@@ -98,7 +103,7 @@ public class CustomerServiceImpl implements CustomerService {
                 shipment.setOrderId(orderedProd.getOrderId());
                 shipment.setProdId(prodID);
                 shipment.setStatus(Constant.order);
-                shipment.setCustomerId(customerId);
+                shipment.setCustomerId(customer.getCustomerId());
                 shipmentRepo.save(shipment);
 
                 OrderPlaced orderPlaced = new OrderPlaced();
@@ -118,8 +123,17 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public List<PreviousOrders> myOrders(int customerId){
-        List<OrderedProd> orderedProdList= orderedProdRepo.findByCustomerId(customerId);
+    public Customer findByEmail(String email) {
+        return customerRepo.findByEmail(email).orElseThrow(()->new ResourceNotFoundException("email","emailId "+email,0));
+    }
+
+    @Override
+    public List<PreviousOrders> myOrders(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email =  authentication.getName();
+        Customer customer = customerRepo.findByEmail(email).orElseThrow(()->new ResourceNotFoundException("customer","customerId "+email,0));
+
+        List<OrderedProd> orderedProdList= orderedProdRepo.findByCustomerId(customer.getCustomerId());
          List<PreviousOrders> previousOrders =new ArrayList<>();
          for(OrderedProd orderedProd:orderedProdList){
              PreviousOrders orderedProd1=new PreviousOrders();
