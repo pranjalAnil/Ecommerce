@@ -47,7 +47,7 @@ public class PublicController {
         return new ResponseEntity<>(merchantService.createAcc(merchantDto),HttpStatus.OK);
     }
 
-    @PostMapping("/login")
+        @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody LoginDto loginDto) {
         try {
             authenticationManager.authenticate(

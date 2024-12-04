@@ -1,4 +1,5 @@
 package com.ecom.Ecommerce.services.Impl;
+import com.ecom.Ecommerce.Exception.EmailAlreadyExists;
 import com.ecom.Ecommerce.Exception.OrderedProdMoreThanNumOfProd;
 import com.ecom.Ecommerce.Exception.ResourceNotFoundException;
 import com.ecom.Ecommerce.constants.Constant;
@@ -27,6 +28,8 @@ public class CustomerServiceImpl implements CustomerService {
     @Autowired
     ProductRepo productRepo;
 
+    @Autowired
+    DeliveryBoyRepo deliveryBoyRepo;
 
     @Autowired
     ShipmentRepo shipmentRepo;
@@ -34,11 +37,29 @@ public class CustomerServiceImpl implements CustomerService {
     @Autowired
     CategoryRepo categoryRepo;
 
+    @Autowired
+    MerchantRepo merchantRepo;
+
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
 
     @Override
     public CustomerDto createAcc(CustomerDto customerDto) {
+        String email=customerDto.getEmail();
+        List<DeliveryBoy> deliveryBoyList=deliveryBoyRepo.findAll();
+
+        for(DeliveryBoy deliveryBoy:deliveryBoyList){
+            if (deliveryBoy.getEmail().equals(email)){
+                throw new EmailAlreadyExists("email","emailID",deliveryBoy.getEmail());
+            }
+        }
+        List<Merchant> merchantList=merchantRepo.findAll();
+        for (Merchant merchant:merchantList){
+            if(merchant.getEmail().equals(email)){
+                throw new EmailAlreadyExists("email","emailID",email);
+            }
+        }
+
         Customer customer =new Customer();
         BeanUtils.copyProperties(customerDto,customer);
         customer.setPassword(encoder.encode(customer.getPassword()));
@@ -53,6 +74,19 @@ public class CustomerServiceImpl implements CustomerService {
         Customer customer= customerRepo.findByEmail(email).orElseThrow(
                 ()->new ResourceNotFoundException("customer","email " +email,0)
         );
+
+        List<DeliveryBoy> deliveryBoyList=deliveryBoyRepo.findAll();
+        for(DeliveryBoy deliveryBoy:deliveryBoyList){
+            if (deliveryBoy.getEmail().equals(customerDto.getEmail())){
+                throw new EmailAlreadyExists("email","emailID",deliveryBoy.getEmail());
+            }
+        }
+        List<Merchant> merchantList=merchantRepo.findAll();
+        for (Merchant merchant:merchantList){
+            if(merchant.getEmail().equals(customerDto.getEmail())){
+                throw new EmailAlreadyExists("email","emailID",email);
+            }
+        }
         customer.setCustomerName(customerDto.getCustomerName());
         if (!Objects.equals(customerDto.getEmail(), email) || customerDto.getEmail() != null) {
             customer.setEmail(customerDto.getEmail());

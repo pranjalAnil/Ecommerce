@@ -20,10 +20,10 @@ public class MerchantController {
     @Autowired
     ProductService productService;
 
-    @PostMapping("/createAcc")
-    public ResponseEntity<?> createMerchant(@RequestBody MerchantDto merchantDto){
-        return new ResponseEntity<>(merchantService.createAcc(merchantDto),HttpStatus.OK);
-    }
+//    @PostMapping("/createAcc")
+//    public ResponseEntity<?> createMerchant(@RequestBody MerchantDto merchantDto){
+//        return new ResponseEntity<>(merchantService.createAcc(merchantDto),HttpStatus.OK);
+//    }
 
     @PutMapping("/updateAcc/{email}")
     public ResponseEntity<?> updateAcc(@RequestBody MerchantDto  merchantDto, @PathVariable String email){

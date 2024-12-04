@@ -26,12 +26,12 @@ public class CustomerController {
     @Autowired
     CartService cartService;
 
-
-    @PostMapping("/createAcc")
-    public ResponseEntity<CustomerDto> createCustomerAccount(@RequestBody CustomerDto customerDto){
-        CustomerDto customerDto1=customerService.createAcc(customerDto);
-        return new  ResponseEntity<>(customerDto1,HttpStatus.OK);
-    }
+//
+//    @PostMapping("/createAcc")
+//    public ResponseEntity<CustomerDto> createCustomerAccount(@RequestBody CustomerDto customerDto){
+//        CustomerDto customerDto1=customerService.createAcc(customerDto);
+//        return new  ResponseEntity<>(customerDto1,HttpStatus.OK);
+//    }
 
     @PutMapping("/updateAcc/{email}")
     public ResponseEntity<CustomerDto> updateCustomerAccount(@RequestBody CustomerDto customerDto,@PathVariable String email){
