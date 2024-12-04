@@ -9,13 +9,13 @@ import java.util.List;
 @Service
 public interface DeliveryBoyService {
     public DeliveryBoyDto addDeliverBoy(DeliveryBoyDto deliveryBoyDto);
-    public DeliveryBoyDto updateDeliveryBoy(DeliveryBoyDto deliveryBoyDto,int id);
-    public List<ShipmentDto> getAllShipments(int deliveryBoyId);
-    public String deleteDeliverBoy(String email);
+    public DeliveryBoyDto updateDeliveryBoy(DeliveryBoyDto deliveryBoyDto);
+    public List<ShipmentDto> getAllShipments();
+    public String deleteDeliverBoy();
     public List<DeliveryBoyDto> getAllDeliverBoy();
-    public DeliveryBoyDto getDeliveryBoyByEmail(String email);
-    public String successfulDelivery(int shipmentId,int deliveryByoId);
-    public String orderCancelation(int shipmentId,int deliveryByoId);
+    public DeliveryBoyDto getDeliveryBoyByEmail();
+    public String successfulDelivery(int shipmentId);
+    public String orderCancelation(int shipmentId);
 
 
 }

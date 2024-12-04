@@ -12,6 +12,8 @@ import com.ecom.Ecommerce.services.CustomerService;
 import com.ecom.Ecommerce.services.MerchantService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -55,8 +57,15 @@ public class MerchantServiceImpl implements MerchantService {
     }
 
     @Override
-    public MerchantDto updateAcc(MerchantDto merchantDto, String email) {
-        List<Customer> customerList=customerRepo.findAll();
+    public MerchantDto updateAcc(MerchantDto merchantDto) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email =  authentication.getName();
+
+        Merchant merchant=merchantRepo.findByEmail(email).orElseThrow(
+                ()->new ResourceNotFoundException("Merchant","email"+email,0)
+        );
+  
+   List<Customer> customerList=customerRepo.findAll();
         for (Customer customer:customerList){
             if(customer.getEmail().equals(merchantDto.getEmail())){
                 throw new EmailAlreadyExists("email","emailId",merchantDto.getEmail());
@@ -68,9 +77,6 @@ public class MerchantServiceImpl implements MerchantService {
                 throw new EmailAlreadyExists("email","emailId",merchantDto.getEmail());
             }
         }
-        Merchant merchant=merchantRepo.findByEmail(email).orElseThrow(
-                ()->new ResourceNotFoundException("Merchant","email"+email,0)
-        );
         merchant.setMerchantName(merchantDto.getMerchantName());
         merchant.setAddress(merchantDto.getAddress());
         merchant.setMobile(merchantDto.getMobile());
@@ -85,7 +91,9 @@ public class MerchantServiceImpl implements MerchantService {
     }
 
     @Override
-    public String deleteAccount(String email) {
+    public String deleteAccount() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email =  authentication.getName();
         merchantRepo.delete(merchantRepo.findByEmail(email).orElseThrow(
                 ()->new ResourceNotFoundException("Merchant","email"+email,0)
         ));

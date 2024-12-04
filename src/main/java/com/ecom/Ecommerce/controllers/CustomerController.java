@@ -1,4 +1,5 @@
 package com.ecom.Ecommerce.controllers;
+import com.ecom.Ecommerce.entities.Customer;
 import com.ecom.Ecommerce.payloads.CartDto;
 import com.ecom.Ecommerce.payloads.CustomerDto;
 import com.ecom.Ecommerce.payloads.OrderDto;
@@ -10,12 +11,17 @@ import com.ecom.Ecommerce.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/customer")
+@PreAuthorize("hasRole('ROLE_ADMIN')")
 public class CustomerController {
 
     @Autowired
@@ -26,24 +32,17 @@ public class CustomerController {
     @Autowired
     CartService cartService;
 
-//
-//    @PostMapping("/createAcc")
-//    public ResponseEntity<CustomerDto> createCustomerAccount(@RequestBody CustomerDto customerDto){
-//        CustomerDto customerDto1=customerService.createAcc(customerDto);
-//        return new  ResponseEntity<>(customerDto1,HttpStatus.OK);
-//    }
+    @PutMapping("/updateAcc")
+    public ResponseEntity<CustomerDto> updateCustomerAccount(@RequestBody CustomerDto customerDto){
+        CustomerDto customerDto1=customerService.updateAcc(customerDto);
 
-    @PutMapping("/updateAcc/{email}")
-    public ResponseEntity<CustomerDto> updateCustomerAccount(@RequestBody CustomerDto customerDto,@PathVariable String email){
-        CustomerDto customerDto1=customerService.updateAcc(customerDto,email);
         return new ResponseEntity<>(customerDto1,HttpStatus.OK);
     }
 
-    @DeleteMapping("/deleteAcc/{email}")
-    public ResponseEntity<String> deleteCustomerAcc(@PathVariable String email){
-        return new ResponseEntity<>(customerService.deleteAccount(email),HttpStatus.OK);
+    @DeleteMapping("/deleteAcc")
+    public ResponseEntity<String> deleteCustomerAcc(){
+        return new ResponseEntity<>(customerService.deleteAccount(),HttpStatus.OK);
     }
-
 
     @GetMapping("/all-products")
     public ResponseEntity<?> getAllProducts() {
@@ -54,26 +53,31 @@ public class CustomerController {
         return new ResponseEntity<>(all, HttpStatus.NOT_FOUND);
     }
 
-    @PostMapping("/{customerId}/orderProd/{prodId}")
-    public ResponseEntity<OrderPlaced> orderPro(@RequestBody OrderDto orderDto, @PathVariable int prodId,@PathVariable int customerId ){
-        return new ResponseEntity<>(customerService.orderProd(customerId,prodId,orderDto),HttpStatus.OK);
+    @PostMapping("/orderProd/{prodId}")
+    public ResponseEntity<OrderPlaced> orderPro(@RequestBody OrderDto orderDto, @PathVariable int prodId){
+        return new ResponseEntity<>(customerService.orderProd(prodId,orderDto),HttpStatus.OK);
     }
 
     @GetMapping("/{customerId}/myOrders")
-    public ResponseEntity<?> getProdList(@PathVariable int customerId){
-        return new ResponseEntity<>(customerService.myOrders(customerId),HttpStatus.OK);
+    public ResponseEntity<?> getProdList(){
+        return new ResponseEntity<>(customerService.myOrders(),HttpStatus.OK);
     }
 
-    @PostMapping("/addCart/{customerId}/{prodId}")
-    public ResponseEntity<CartDto> addToCart(@PathVariable int customerId, @PathVariable int prodId) {
-        CartDto cartDto1 = cartService.addToCart(customerId, prodId);
+    @PostMapping("/addCart/{prodId}")
+    public ResponseEntity<CartDto> addToCart(@PathVariable int prodId) {
+        CartDto cartDto1 = cartService.addToCart(prodId);
         return new ResponseEntity<>(cartDto1, HttpStatus.OK);
     }
 
-    @GetMapping("/getCart/{customerId}")
-    public ResponseEntity<?> getCart(@PathVariable int customerId) {
-       List<CartDto> cartDto = cartService.getCart(customerId);
+    @GetMapping("/getCart")
+    public ResponseEntity<?> getCart() {
+       List<CartDto> cartDto = cartService.getCart();
         return new ResponseEntity<>(cartDto, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/removeCart/{cartId}")
+    public ResponseEntity<?> removeFromCart(@PathVariable int cartId) {
+        return new ResponseEntity<>(cartService.removeFromCart(cartId), HttpStatus.OK);
     }
 
 }

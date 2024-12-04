@@ -64,7 +64,7 @@ public class PublicController {
     }
 
     @DeleteMapping("/deleteAcc/{email}")
-    public ResponseEntity<String> deleteCustomerAcc(@PathVariable String email){
-        return new ResponseEntity<>(customerService.deleteAccount(email),HttpStatus.OK);
+    public ResponseEntity<String> deleteCustomerAcc(){
+        return new ResponseEntity<>(customerService.deleteAccount(),HttpStatus.OK);
     }
 }
