@@ -8,7 +8,6 @@ import com.ecom.Ecommerce.entities.Merchant;
 import com.ecom.Ecommerce.repo.CustomerRepo;
 import com.ecom.Ecommerce.repo.DeliveryBoyRepo;
 import com.ecom.Ecommerce.repo.MerchantRepo;
-import com.ecom.Ecommerce.services.CustomerService;
 import com.ecom.Ecommerce.services.MerchantService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,10 +15,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+
 @Service
 public class MerchantServiceImpl implements MerchantService {
     @Autowired
@@ -65,7 +64,7 @@ public class MerchantServiceImpl implements MerchantService {
                 ()->new ResourceNotFoundException("Merchant","email"+email,0)
         );
   
-   List<Customer> customerList=customerRepo.findAll();
+        List<Customer> customerList=customerRepo.findAll();
         for (Customer customer:customerList){
             if(customer.getEmail().equals(merchantDto.getEmail())){
                 throw new EmailAlreadyExists("email","emailId",merchantDto.getEmail());

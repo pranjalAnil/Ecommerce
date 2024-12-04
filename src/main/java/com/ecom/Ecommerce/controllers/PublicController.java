@@ -1,12 +1,10 @@
 package com.ecom.Ecommerce.controllers;
 
+import com.ecom.Ecommerce.payloads.CategoryDto;
 import com.ecom.Ecommerce.payloads.CustomerDto;
 import com.ecom.Ecommerce.payloads.LoginDto;
 import com.ecom.Ecommerce.payloads.MerchantDto;
-import com.ecom.Ecommerce.services.CustomUserDetailsService;
-import com.ecom.Ecommerce.services.CustomerService;
-import com.ecom.Ecommerce.services.JwtService;
-import com.ecom.Ecommerce.services.MerchantService;
+import com.ecom.Ecommerce.services.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -35,6 +33,9 @@ public class PublicController {
 
     @Autowired
     MerchantService merchantService;
+
+    @Autowired
+    CategoryService categoryService;
 
     @PostMapping("/createCustomerAcc")
     public ResponseEntity<CustomerDto> createCustomerAccount(@RequestBody CustomerDto customerDto){
@@ -66,5 +67,12 @@ public class PublicController {
     @DeleteMapping("/deleteAcc/{email}")
     public ResponseEntity<String> deleteCustomerAcc(){
         return new ResponseEntity<>(customerService.deleteAccount(),HttpStatus.OK);
+    }
+
+
+    @PostMapping("/add-category")
+    public ResponseEntity<?> addCategory(@RequestBody CategoryDto categoryDto){
+        return new ResponseEntity<>(categoryService.addCategory(categoryDto), HttpStatus.OK);
+
     }
 }

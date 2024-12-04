@@ -32,9 +32,9 @@ public class MerchantController {
         return new ResponseEntity<>(merchantService.deleteAccount(),HttpStatus.OK);
     }
 
-    @PostMapping("/{merchantId}/category/{categoryId}/add-product")
-    public ResponseEntity<ProductsDto> addProducts(@RequestBody ProductsDto productsDto,@PathVariable int merchantId,int categoryId) {
-        ProductsDto productsDto1 = productService.addProducts(productsDto,merchantId,categoryId);
+    @PostMapping("/category/{categoryId}/add-product")
+    public ResponseEntity<ProductsDto> addProducts(@RequestBody ProductsDto productsDto,@PathVariable int categoryId) {
+        ProductsDto productsDto1 = productService.addProducts(productsDto,categoryId);
         return new ResponseEntity<>(productsDto1, HttpStatus.CREATED);
     }
 

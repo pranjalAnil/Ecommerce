@@ -86,9 +86,7 @@ public class DeliveryBoyImpl implements DeliveryBoyService {
                 throw new EmailAlreadyExists("email","emailId",deliveryBoyDto.getEmail());
             }
         }
-        DeliveryBoy deliveryBoy=deliveryBoyRepo.findById(id).orElseThrow(
-                ()->new ResourceNotFoundException("deliveryBoy","deliveryBoyId" ,id)
-        );
+
 
         deliveryBoy.setMobile(deliveryBoy.getMobile());
         deliveryBoy.setEmail(deliveryBoy.getEmail());
