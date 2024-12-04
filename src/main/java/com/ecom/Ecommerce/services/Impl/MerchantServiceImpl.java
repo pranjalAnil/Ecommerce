@@ -7,17 +7,25 @@ import com.ecom.Ecommerce.repo.MerchantRepo;
 import com.ecom.Ecommerce.services.MerchantService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Arrays;
 import java.util.Objects;
 
 @Service
 public class MerchantServiceImpl implements MerchantService {
     @Autowired
     MerchantRepo merchantRepo;
+
+    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
     @Override
     public MerchantDto createAcc(MerchantDto merchantDto) {
         Merchant merchant=new Merchant();
         BeanUtils.copyProperties(merchantDto,merchant);
+        merchant.setPassword(encoder.encode(merchant.getPassword()));
+        merchant.setRoles(Arrays.asList("ROLE_MERCHANT"));
         merchantRepo.save(merchant);
         BeanUtils.copyProperties(merchant,merchantDto);
         return merchantDto;
